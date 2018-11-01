@@ -2,10 +2,12 @@
 
 var requestStream = just('https://api.github.com/users');
 
-requestStream.subscribe(requestUrl => {
-  var responseStream = fromPromise(jQuery.getJSON(requestUrl));
+var responseStream = requestStream.flatMap(requestUrl => fromPromise(jQuery.getJSON(requestUrl)))
 
-  responseStream.subscribe(response => {
-    console.log(response);
-  })
-})
+// requestStream.subscribe(requestUrl => {
+//   var responseStream = fromPromise(jQuery.getJSON(requestUrl));
+
+//   responseStream.subscribe(response => {
+//     console.log(response);
+//   })
+// })
