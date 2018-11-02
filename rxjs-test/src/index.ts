@@ -1,9 +1,15 @@
 // All changes here will automatically refresh browser via webpack :)
 
-import { of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { of, from } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+import * as $ from 'jquery';
 
-let streamA = of(3, 4);
-let streamB = streamA.pipe(map(a => 10 * a));
+var requestStream = of('https://api.github.com/users');
 
-streamB.subscribe(b => console.log(b))
+var responseStream = requestStream.pipe(flatMap(requestUrl =>
+  from($.getJSON(requestUrl))
+));
+
+responseStream.subscribe(response => {
+  console.log(response);
+});
