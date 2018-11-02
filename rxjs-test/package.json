@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/jquery": "^3.3.22",
+    "jquery": "^3.3.1",
     "rxjs": "^6.3.3",
     "ts-loader": "^5.2.2",
     "typescript": "^3.1.3",
