@@ -1,14 +1,27 @@
 // Send new requests from refresh clicks in RxJS
 
-import { of, from } from 'rxjs';
-import { flatMap, map } from 'rxjs/operators';
+import { of, from, fromEvent } from 'rxjs';
+import { flatMap, map, merge } from 'rxjs/operators';
 import * as $ from 'jquery';
 
 let refreshButton = document.querySelector('.refresh');
+let refreshClickStream = fromEvent(refreshButton, 'click');
+let startupRequestStream = of('https://api.github.com/users');
 
-let requestStream = of('https://api.github.com/users');
+let requestOnRefreshStream = refreshClickStream.pipe(
+  map(ev => {
+    let randomOffset = Math.floor(Math.random() * 500);
+    return 'https://api.github.com/users?since=' + randomOffset;
+  })
+);
 
-let responseStream = requestStream.pipe(
+//------a---b------c----->
+//s---------------------->
+// merge both data streams
+//s-----a---b------c----->
+
+let responseStream = requestOnRefreshStream.pipe(
+  merge(startupRequestStream),
   flatMap(requestUrl => from($.getJSON(requestUrl)))
 );
 
