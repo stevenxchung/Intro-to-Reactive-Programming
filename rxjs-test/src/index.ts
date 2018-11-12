@@ -1,14 +1,7 @@
 // All changes here will automatically refresh browser via webpack :)
 
 import { of, from, fromEvent } from 'rxjs';
-import {
-  flatMap,
-  map,
-  merge,
-  startWith,
-  shareReplay,
-  tap
-} from 'rxjs/operators';
+import { flatMap, map, merge, startWith } from 'rxjs/operators';
 import * as $ from 'jquery';
 
 let refreshButton = document.querySelector('.refresh');
@@ -27,13 +20,9 @@ let requestOnRefreshStream = refreshClickStream.pipe(
 // merge both data streams
 //s-----a---b------c----->
 
-let responseStream = startupRequestStream.pipe(
-  merge(requestOnRefreshStream),
-  flatMap(requestUrl => from($.getJSON(requestUrl))),
-  tap(val => {
-    console.log('In startupRequestStream pipe!');
-  }),
-  shareReplay(1)
+let responseStream = requestOnRefreshStream.pipe(
+  merge(startupRequestStream),
+  flatMap(requestUrl => from($.getJSON(requestUrl)))
 );
 
 // ----u---------->
@@ -61,9 +50,9 @@ let suggestion3Stream$ = createSuggestionStream(responseStream);
 let renderSuggestion = (suggestedUser: any, selector: any) => {
   let suggestionEl = document.querySelector(selector);
   if (suggestedUser === null) {
-    suggestionEl.style.visibility = 'hidden';
+    $(selector).hide()
   } else {
-    suggestionEl.style.visibility = 'visibile';
+    $(selector).show()
     let usernameEl = suggestionEl.querySelector('.username');
     usernameEl.href = suggestedUser.html_url;
     usernameEl.textContent = suggestedUser.login;
