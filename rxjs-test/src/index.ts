@@ -1,7 +1,14 @@
 // All changes here will automatically refresh browser via webpack :)
 
 import { of, from, fromEvent } from 'rxjs';
-import { flatMap, map, merge, startWith } from 'rxjs/operators';
+import {
+  flatMap,
+  map,
+  merge,
+  startWith,
+  shareReplay,
+  tap
+} from 'rxjs/operators';
 import * as $ from 'jquery';
 
 let refreshButton = document.querySelector('.refresh');
@@ -20,9 +27,13 @@ let requestOnRefreshStream = refreshClickStream.pipe(
 // merge both data streams
 //s-----a---b------c----->
 
-let responseStream = requestOnRefreshStream.pipe(
-  merge(startupRequestStream),
-  flatMap(requestUrl => from($.getJSON(requestUrl)))
+let responseStream = startupRequestStream.pipe(
+  merge(requestOnRefreshStream),
+  flatMap(requestUrl => from($.getJSON(requestUrl))),
+  tap(val => {
+    console.log('In startupRequestStream pipe!');
+  }),
+  shareReplay(1)
 );
 
 // ----u---------->
