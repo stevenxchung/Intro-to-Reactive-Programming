@@ -51,9 +51,9 @@ let suggestion3Stream$ = createSuggestionStream(responseStream);
 let renderSuggestion = (suggestedUser: any, selector: any) => {
   let suggestionEl = document.querySelector(selector);
   if (suggestedUser === null) {
-    suggestionEl.style.visibility = 'hidden';
+    $(selector).hide()
   } else {
-    suggestionEl.style.visibility = 'visibile';
+    $(selector).show()
     let usernameEl = suggestionEl.querySelector('.username');
     usernameEl.href = suggestedUser.html_url;
     usernameEl.textContent = suggestedUser.login;
