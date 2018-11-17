@@ -7,7 +7,8 @@ import {
   merge,
   startWith,
   shareReplay,
-  tap
+  tap,
+  withLatestFrom
 } from 'rxjs/operators';
 import * as $ from 'jquery';
 
@@ -51,28 +52,37 @@ let responseStream = startupRequestStream.pipe(
 //     merge
 // N---u--N---N-u->
 
-let createSuggestionStream = (responseStream: any) => {
+let getRandomUser = (listUsers: any) => {
+  return listUsers[Math.floor(Math.random() * listUsers.length)];
+};
+
+let createSuggestionStream = (responseStream: any, closeClickStream: any) => {
   return responseStream.pipe(
     map(
       (listUser: any) => listUser[Math.floor(Math.random() * listUser.length)]
     ),
     startWith(null),
-    merge(refreshClickStream.pipe(map(ev => null)))
+    merge(refreshClickStream.pipe(map(ev => null))),
+    merge(
+      closeClickStream.pipe(
+        withLatestFrom(responseStream, (x: any, R: any) => getRandomUser(R))
+      )
+    )
   );
 };
 
-let suggestion1Stream$ = createSuggestionStream(responseStream);
-let suggestion2Stream$ = createSuggestionStream(responseStream);
-let suggestion3Stream$ = createSuggestionStream(responseStream);
+let suggestion1Stream$ = createSuggestionStream(responseStream, close1Clicks);
+let suggestion2Stream$ = createSuggestionStream(responseStream, close2Clicks);
+let suggestion3Stream$ = createSuggestionStream(responseStream, close3Clicks);
 
 // Rendering
 let renderSuggestion = (suggestedUser: any, selector: any) => {
   let suggestionEl = document.querySelector(selector);
   if (suggestedUser === null) {
-    $(selector).hide()
+    $(selector).hide();
   } else {
     // Using vanilla JS did not show for some reason
-    $(selector).show()
+    $(selector).show();
     let usernameEl = suggestionEl.querySelector('.username');
     usernameEl.href = suggestedUser.html_url;
     usernameEl.textContent = suggestedUser.login;
