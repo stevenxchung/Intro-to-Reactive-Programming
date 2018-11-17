@@ -1,12 +1,27 @@
 // All changes here will automatically refresh browser via webpack :)
 
 import { of, from, fromEvent } from 'rxjs';
-import { flatMap, map, merge, startWith } from 'rxjs/operators';
+import {
+  flatMap,
+  map,
+  merge,
+  startWith,
+  shareReplay,
+  tap
+} from 'rxjs/operators';
 import * as $ from 'jquery';
 
-let refreshButton = document.querySelector('.refresh');
-let refreshClickStream = fromEvent(refreshButton, 'click');
-let startupRequestStream = of('https://api.github.com/users');
+const refreshButton = document.querySelector('.refresh');
+const closeButton1 = document.querySelector('.close1');
+const closeButton2 = document.querySelector('.close2');
+const closeButton3 = document.querySelector('.close3');
+
+const refreshClickStream = fromEvent(refreshButton, 'click');
+const close1Clicks = fromEvent(closeButton1, 'click');
+const close2Clicks = fromEvent(closeButton2, 'click');
+const close3Clicks = fromEvent(closeButton3, 'click');
+
+const startupRequestStream = of('https://api.github.com/users');
 
 let requestOnRefreshStream = refreshClickStream.pipe(
   map(ev => {
@@ -20,9 +35,13 @@ let requestOnRefreshStream = refreshClickStream.pipe(
 // merge both data streams
 //s-----a---b------c----->
 
-let responseStream = requestOnRefreshStream.pipe(
-  merge(startupRequestStream),
-  flatMap(requestUrl => from($.getJSON(requestUrl)))
+let responseStream = startupRequestStream.pipe(
+  merge(requestOnRefreshStream),
+  flatMap(requestUrl => from($.getJSON(requestUrl))),
+  tap(val => {
+    console.log('In startupRequestStream pipe!');
+  }),
+  shareReplay(1)
 );
 
 // ----u---------->
@@ -52,6 +71,7 @@ let renderSuggestion = (suggestedUser: any, selector: any) => {
   if (suggestedUser === null) {
     $(selector).hide()
   } else {
+    // Using vanilla JS did not show for some reason
     $(selector).show()
     let usernameEl = suggestionEl.querySelector('.username');
     usernameEl.href = suggestedUser.html_url;
