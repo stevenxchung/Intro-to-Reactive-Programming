@@ -11,9 +11,17 @@ import {
 } from 'rxjs/operators';
 import * as $ from 'jquery';
 
-let refreshButton = document.querySelector('.refresh');
-let refreshClickStream = fromEvent(refreshButton, 'click');
-let startupRequestStream = of('https://api.github.com/users');
+const refreshButton = document.querySelector('.refresh');
+const closeButton1 = document.querySelector('.close1');
+const closeButton2 = document.querySelector('.close2');
+const closeButton3 = document.querySelector('.close3');
+
+const refreshClickStream = fromEvent(refreshButton, 'click');
+const close1Clicks = fromEvent(closeButton1, 'click');
+const close2Clicks = fromEvent(closeButton2, 'click');
+const close3Clicks = fromEvent(closeButton3, 'click');
+
+const startupRequestStream = of('https://api.github.com/users');
 
 let requestOnRefreshStream = refreshClickStream.pipe(
   map(ev => {
