@@ -7,18 +7,23 @@ import { buffer, throttle, map, filter } from 'rxjs/operators';
 const button = document.querySelector('button');
 const label = document.querySelector('h4');
 
-// Initialize clickStream observable
-let clickStream = fromEvent(button, 'click');
-let doubleClickStream = clickStream.pipe(
-  buffer(clickStream.pipe(throttle(val => interval(250)))),
+// Initialize click stream observable as clickStream$
+let clickStream$ = fromEvent(button, 'click');
+
+// We can chain clickStream$ with pipe() and use a variety of operations
+let doubleClickStream$ = clickStream$.pipe(
+  // Here we observe the stream and check to see if there are two clicks which occurred in 250 ms
+  buffer(clickStream$.pipe(throttle(val => interval(250)))),
   map(arr => arr.length),
   filter(len => len === 2)
 );
 
-doubleClickStream.subscribe(event => {
+// If there is two clicks within 250 ms, set the text in h4
+doubleClickStream$.subscribe(event => {
   label.textContent = 'Double Clicked!';
 });
 
-doubleClickStream.pipe(throttle(val => interval(1000))).subscribe(suggestion => {
+// For the first second, no double clicks will count and the text will be set
+doubleClickStream$.pipe(throttle(val => interval(1000))).subscribe(suggestion => {
   label.textContent = 'First Try!';
 });
