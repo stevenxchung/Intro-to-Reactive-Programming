@@ -3,9 +3,11 @@
 import { fromEvent, interval } from 'rxjs';
 import { buffer, throttle, map, filter } from 'rxjs/operators';
 
-let button = document.querySelector('button');
-let label = document.querySelector('h4');
+// Select the button and h4 element and store it as a variable
+const button = document.querySelector('button');
+const label = document.querySelector('h4');
 
+// Initialize clickStream observable
 let clickStream = fromEvent(button, 'click');
 let doubleClickStream = clickStream.pipe(
   buffer(clickStream.pipe(throttle(val => interval(250)))),
