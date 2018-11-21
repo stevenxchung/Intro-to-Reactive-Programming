@@ -1,9 +1,12 @@
 // Here we will explore async requests and responses with RxJS
 
-var requestStream = just('https://api.github.com/users');
+import { of, from } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 
-var responseStream = requestStream.flatMap(requestUrl =>
-  fromPromise(jQuery.getJSON(requestUrl))
+const requestStream = of('https://api.github.com/users');
+
+let responseStream = requestStream.pipe(
+  flatMap(requestUrl => from(jQuery.getJSON(requestUrl)))
 );
 
 responseStream.subscribe(response => {
