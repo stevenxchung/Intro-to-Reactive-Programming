@@ -18,7 +18,7 @@ import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 // When using RxJS, we can now specify the dynamic behavior of a value completely at the time of declaration. If we want the output to be 30 and 40 we simply add a 4 to the of() method.
-let streamA = of(3, 4);
-let streamB = streamA.pipe(map(a => 10 * a));
+let streamA$ = of(3, 4);
+let streamB$ = streamA$.pipe(map(a => 10 * a));
 
-streamB.subscribe(b => console.log(b))
+streamB$.subscribe(b => console.log(b))
