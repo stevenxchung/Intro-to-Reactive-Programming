@@ -6,23 +6,23 @@ import * as $ from 'jquery';
 
 let refreshButton = document.querySelector('.refresh');
 
-let requestStream = of('https://api.github.com/users');
+let requestStream$ = of('https://api.github.com/users');
 
-let responseStream = requestStream.pipe(
+let responseStream$ = requestStream$.pipe(
   flatMap(requestUrl => from($.getJSON(requestUrl)))
 );
 
-let createSuggestionStream = (responseStream: any) => {
-  return responseStream.pipe(
+let createSuggestionStream = (responseStream$: any) => {
+  return responseStream$.pipe(
     map(
       (listUser: any) => listUser[Math.floor(Math.random() * listUser.length)]
     )
   );
 };
 
-let suggestion1Stream$ = createSuggestionStream(responseStream);
-let suggestion2Stream$ = createSuggestionStream(responseStream);
-let suggestion3Stream$ = createSuggestionStream(responseStream);
+let suggestion1Stream$ = createSuggestionStream(responseStream$);
+let suggestion2Stream$ = createSuggestionStream(responseStream$);
+let suggestion3Stream$ = createSuggestionStream(responseStream$);
 
 let renderSuggestion = (userData: any, selector: any) => {
   let element = document.querySelector(selector);
