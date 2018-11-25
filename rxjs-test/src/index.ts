@@ -1,22 +1,31 @@
 // All changes here will automatically refresh browser via webpack :)
 
-import { of, from } from 'rxjs';
-import { flatMap, map } from 'rxjs/operators';
+import { of, from, fromEvent } from 'rxjs';
+import { flatMap, map, merge } from 'rxjs/operators';
 import * as $ from 'jquery';
 
-// Selector for refresh element
 let refreshButton = document.querySelector('.refresh');
 
-// Will create an observable of GitHub users
-let requestStream$ = of('https://api.github.com/users');
+let refreshClickStream$ = fromEvent(refreshButton, 'click');
+let startupRequestStream$ = of('https://api.github.com/users');
 
-// flatMap() is an alias for mergeMap(), see https://www.learnrxjs.io/operators/transformation/mergemap.html
-// Here we flatten the requestStream$ of GitHub users to an observable of GitHub users in JSON
-let responseStream$ = requestStream$.pipe(
+let requestOnRefreshStream$ = refreshClickStream$.pipe(
+  map(ev => {
+    let randomOffset = Math.floor(Math.random() * 500);
+    return 'https://api.github.com/users?since=' + randomOffset;
+  })
+);
+
+//------a---b------c----->
+//s---------------------->
+// merge both data streams
+//s-----a---b------c----->
+
+let responseStream$ = requestOnRefreshStream$.pipe(
+  merge(startupRequestStream$),
   flatMap(requestUrl => from($.getJSON(requestUrl)))
 );
 
-// Returns responseStream$ where the users are randomly mapped into an array
 let createSuggestionStream = (responseStream$: any) => {
   return responseStream$.pipe(
     map(
@@ -25,12 +34,10 @@ let createSuggestionStream = (responseStream$: any) => {
   );
 };
 
-// Each stream will be an individual observable stream of GitHub users in a random order
 let suggestion1Stream$ = createSuggestionStream(responseStream$);
 let suggestion2Stream$ = createSuggestionStream(responseStream$);
 let suggestion3Stream$ = createSuggestionStream(responseStream$);
 
-// Get name and image URL from the GitHub response
 let renderSuggestion = (userData: any, selector: any) => {
   let element = document.querySelector(selector);
   let usernameEl = element.querySelector('.username');
@@ -40,7 +47,6 @@ let renderSuggestion = (userData: any, selector: any) => {
   imgEl.src = userData.avatar_url;
 };
 
-// Returns one user from the stream of random users
 suggestion1Stream$.subscribe((user: any) => {
   renderSuggestion(user, '.suggestion1');
 });
