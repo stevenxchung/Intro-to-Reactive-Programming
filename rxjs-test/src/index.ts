@@ -4,11 +4,16 @@ import { of, from, fromEvent } from 'rxjs';
 import { flatMap, map, merge } from 'rxjs/operators';
 import * as $ from 'jquery';
 
-let refreshButton = document.querySelector('.refresh');
+// Select DOM element with refresh class
+const refreshButton = document.querySelector('.refresh');
 
+// Create a click observable using fromEvent()
 let refreshClickStream$ = fromEvent(refreshButton, 'click');
+
+// Create an observable stream of GitHub users using of()
 let startupRequestStream$ = of('https://api.github.com/users');
 
+// Returns a random GitHhub user from the array
 let requestOnRefreshStream$ = refreshClickStream$.pipe(
   map(ev => {
     let randomOffset = Math.floor(Math.random() * 500);
@@ -21,11 +26,13 @@ let requestOnRefreshStream$ = refreshClickStream$.pipe(
 // merge both data streams
 //s-----a---b------c----->
 
+// Merges requestOnRefreshStream$ with startupRequestStream$ and flattens stream into a JSON array
 let responseStream$ = requestOnRefreshStream$.pipe(
   merge(startupRequestStream$),
   flatMap(requestUrl => from($.getJSON(requestUrl)))
 );
 
+// Function that receives the responseStream$ and returns an array of GitHub users in random order
 let createSuggestionStream = (responseStream$: any) => {
   return responseStream$.pipe(
     map(
@@ -34,19 +41,22 @@ let createSuggestionStream = (responseStream$: any) => {
   );
 };
 
+// Set each randomly generated user from the GitHub array
 let suggestion1Stream$ = createSuggestionStream(responseStream$);
 let suggestion2Stream$ = createSuggestionStream(responseStream$);
 let suggestion3Stream$ = createSuggestionStream(responseStream$);
 
+// Grab username and image from GitHub user array and render in the DOM
 let renderSuggestion = (userData: any, selector: any) => {
-  let element = document.querySelector(selector);
-  let usernameEl = element.querySelector('.username');
+  const element = document.querySelector(selector);
+  const usernameEl = element.querySelector('.username');
   usernameEl.href = userData.html_url;
   usernameEl.textContent = userData.login;
-  let imgEl = element.querySelector('img');
+  const imgEl = element.querySelector('img');
   imgEl.src = userData.avatar_url;
 };
 
+// Render user image
 suggestion1Stream$.subscribe((user: any) => {
   renderSuggestion(user, '.suggestion1');
 });
