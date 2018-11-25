@@ -56,7 +56,7 @@ let renderSuggestion = (userData: any, selector: any) => {
   imgEl.src = userData.avatar_url;
 };
 
-// Render user image
+// Get data from stream for a single random user from the GitHub array
 suggestion1Stream$.subscribe((user: any) => {
   renderSuggestion(user, '.suggestion1');
 });
