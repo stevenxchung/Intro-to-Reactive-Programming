@@ -63,8 +63,8 @@ let getRandomUser = (listUsers: any) => {
   return listUsers[Math.floor(Math.random() * listUsers.length)];
 };
 
-// Returns responseStream$ merged with refreshClickStream$ and closeClickStream
-let createSuggestionStream = (responseStream$: any, closeClickStream: any) => {
+// Returns responseStream$ merged with refreshClickStream$ and closeClickStream$
+let createSuggestionStream = (responseStream$: any, closeClickStream$: any) => {
   return responseStream$.pipe(
     map(
       (listUser: any) => listUser[Math.floor(Math.random() * listUser.length)]
@@ -72,7 +72,7 @@ let createSuggestionStream = (responseStream$: any, closeClickStream: any) => {
     startWith(null),
     merge(refreshClickStream$.pipe(map(ev => null))),
     merge(
-      closeClickStream.pipe(
+      closeClickStream$.pipe(
         withLatestFrom(responseStream$, (x: any, R: any) => getRandomUser(R))
       )
     )
