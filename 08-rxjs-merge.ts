@@ -15,11 +15,11 @@ import * as $ from 'jquery';
 const refreshButton = document.querySelector('.refresh');
 
 // Initialize observables
-const refreshClickStream = fromEvent(refreshButton, 'click');
-const startupRequestStream = of('https://api.github.com/users');
+const refreshClickStream$ = fromEvent(refreshButton, 'click');
+const startupRequestStream$ = of('https://api.github.com/users');
 
-// requestOnRefreshStream will be an observable stream of GitHub users in random order
-let requestOnRefreshStream = refreshClickStream.pipe(
+// requestOnRefreshStream$ will be an observable stream of GitHub users in random order
+let requestOnRefreshStream$ = refreshClickStream$.pipe(
   map(ev => {
     let randomOffset = Math.floor(Math.random() * 500);
     return 'https://api.github.com/users?since=' + randomOffset;
@@ -31,12 +31,12 @@ let requestOnRefreshStream = refreshClickStream.pipe(
 // merge both data streams
 //s-----a---b------c----->
 
-// Combine startupRequestStream and requestOnRefreshStream
-let responseStream = startupRequestStream.pipe(
-  merge(requestOnRefreshStream),
+// Combine startupRequestStream$ and requestOnRefreshStream$
+let responseStream$ = startupRequestStream$.pipe(
+  merge(requestOnRefreshStream$),
   flatMap(requestUrl => from($.getJSON(requestUrl))),
   tap(val => {
-    console.log('In startupRequestStream pipe!');
+    console.log('In startupRequestStream$ pipe!');
   }),
   shareReplay(1)
 );
@@ -48,21 +48,21 @@ let responseStream = startupRequestStream.pipe(
 //     merge
 // N---u--N---N-u->
 
-// Returns a responseStream merged with refreshClickStream and null
-let createSuggestionStream = (responseStream: any) => {
-  return responseStream.pipe(
+// Returns a responseStream$ merged with refreshClickStream$ and null
+let createSuggestionStream = (responseStream$: any) => {
+  return responseStream$.pipe(
     map(
       (listUser: any) => listUser[Math.floor(Math.random() * listUser.length)]
     ),
     startWith(null),
-    merge(refreshClickStream.pipe(map(ev => null)))
+    merge(refreshClickStream$.pipe(map(ev => null)))
   );
 };
 
 // Set up suggestion streams
-let suggestion1Stream$ = createSuggestionStream(responseStream);
-let suggestion2Stream$ = createSuggestionStream(responseStream);
-let suggestion3Stream$ = createSuggestionStream(responseStream);
+let suggestion1Stream$ = createSuggestionStream(responseStream$);
+let suggestion2Stream$ = createSuggestionStream(responseStream$);
+let suggestion3Stream$ = createSuggestionStream(responseStream$);
 
 // Renders user's name and photo to the DOM
 let renderSuggestion = (suggestedUser: any, selector: any) => {
