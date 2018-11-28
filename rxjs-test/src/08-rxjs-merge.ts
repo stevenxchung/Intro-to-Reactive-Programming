@@ -11,10 +11,14 @@ import {
 } from 'rxjs/operators';
 import * as $ from 'jquery';
 
-let refreshButton = document.querySelector('.refresh');
-let refreshClickStream = fromEvent(refreshButton, 'click');
-let startupRequestStream = of('https://api.github.com/users');
+// Initialize selectors
+const refreshButton = document.querySelector('.refresh');
 
+// Initialize observables
+const refreshClickStream = fromEvent(refreshButton, 'click');
+const startupRequestStream = of('https://api.github.com/users');
+
+// requestOnRefreshStream will be an observable stream of GitHub users in random order
 let requestOnRefreshStream = refreshClickStream.pipe(
   map(ev => {
     let randomOffset = Math.floor(Math.random() * 500);
@@ -27,6 +31,7 @@ let requestOnRefreshStream = refreshClickStream.pipe(
 // merge both data streams
 //s-----a---b------c----->
 
+// Combine startupRequestStream and requestOnRefreshStream
 let responseStream = startupRequestStream.pipe(
   merge(requestOnRefreshStream),
   flatMap(requestUrl => from($.getJSON(requestUrl))),
@@ -43,6 +48,7 @@ let responseStream = startupRequestStream.pipe(
 //     merge
 // N---u--N---N-u->
 
+// Returns a responseStream merged with refreshClickStream and null
 let createSuggestionStream = (responseStream: any) => {
   return responseStream.pipe(
     map(
@@ -53,11 +59,12 @@ let createSuggestionStream = (responseStream: any) => {
   );
 };
 
+// Set up suggestion streams
 let suggestion1Stream$ = createSuggestionStream(responseStream);
 let suggestion2Stream$ = createSuggestionStream(responseStream);
 let suggestion3Stream$ = createSuggestionStream(responseStream);
 
-// Rendering
+// Renders user's name and photo to the DOM
 let renderSuggestion = (suggestedUser: any, selector: any) => {
   let suggestionEl = document.querySelector(selector);
   if (suggestedUser === null) {
@@ -74,6 +81,7 @@ let renderSuggestion = (suggestedUser: any, selector: any) => {
   }
 };
 
+// Takes users from the stream and passes it into renderSuggestion()
 suggestion1Stream$.subscribe((user: any) => {
   renderSuggestion(user, '.suggestion1');
 });
