@@ -80,7 +80,7 @@ let createSuggestionStream = (responseStream$: any, closeClickStream$: any) => {
   );
 };
 
-// Setup suggestionStream$
+// Set up suggestionStream$
 let suggestion1Stream$ = createSuggestionStream(responseStream$, close1Clicks$);
 let suggestion2Stream$ = createSuggestionStream(responseStream$, close2Clicks$);
 let suggestion3Stream$ = createSuggestionStream(responseStream$, close3Clicks$);
