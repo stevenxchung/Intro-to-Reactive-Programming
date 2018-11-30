@@ -24,9 +24,9 @@ const close3Clicks = fromEvent(closeButton3, 'click');
 
 const startupRequestStream = of('https://api.github.com/users');
 
-let requestOnRefreshStream = refreshClickStream.pipe(
+const requestOnRefreshStream = refreshClickStream.pipe(
   map(ev => {
-    let randomOffset = Math.floor(Math.random() * 500);
+    const randomOffset = Math.floor(Math.random() * 500);
     return 'https://api.github.com/users?since=' + randomOffset;
   })
 );
@@ -36,7 +36,7 @@ let requestOnRefreshStream = refreshClickStream.pipe(
 // merge both data streams
 //s-----a---b------c----->
 
-let responseStream = startupRequestStream.pipe(
+const responseStream = startupRequestStream.pipe(
   merge(requestOnRefreshStream),
   flatMap(requestUrl => from($.getJSON(requestUrl))),
   tap(val => {
@@ -52,11 +52,11 @@ let responseStream = startupRequestStream.pipe(
 //     merge
 // N---u--N---N-u->
 
-let getRandomUser = (listUsers: any) => {
+const getRandomUser = (listUsers: any) => {
   return listUsers[Math.floor(Math.random() * listUsers.length)];
 };
 
-let createSuggestionStream = (responseStream: any, closeClickStream: any) => {
+const createSuggestionStream = (responseStream: any, closeClickStream: any) => {
   return responseStream.pipe(
     map(
       (listUser: any) => listUser[Math.floor(Math.random() * listUser.length)]
@@ -71,24 +71,25 @@ let createSuggestionStream = (responseStream: any, closeClickStream: any) => {
   );
 };
 
-let suggestion1Stream$ = createSuggestionStream(responseStream, close1Clicks);
-let suggestion2Stream$ = createSuggestionStream(responseStream, close2Clicks);
-let suggestion3Stream$ = createSuggestionStream(responseStream, close3Clicks);
+const suggestion1Stream$ = createSuggestionStream(responseStream, close1Clicks);
+const suggestion2Stream$ = createSuggestionStream(responseStream, close2Clicks);
+const suggestion3Stream$ = createSuggestionStream(responseStream, close3Clicks);
 
 // Rendering
-let renderSuggestion = (suggestedUser: any, selector: any) => {
-  let suggestionEl = document.querySelector(selector);
+const renderSuggestion = (suggestedUser: any, selector: any) => {
+  const suggestionEl = document.querySelector(selector);
   if (suggestedUser === null) {
     $(selector).hide();
   } else {
     // Using vanilla JS did not show for some reason
     $(selector).show();
-    let usernameEl = suggestionEl.querySelector('.username');
+    const usernameEl = suggestionEl.querySelector('.username');
     usernameEl.href = suggestedUser.html_url;
     usernameEl.textContent = suggestedUser.login;
-    let imgEl = suggestionEl.querySelector('img');
+    const imgEl = suggestionEl.querySelector('img');
     imgEl.src = '';
     imgEl.src = suggestedUser.avatar_url;
+    console.log('here!')
   }
 };
 
