@@ -7,7 +7,7 @@ import { flatMap } from 'rxjs/operators';
 const requestStream$ = of('https://api.github.com/users');
 
 // flatMap() or mergeMap() will map request URLs to be an observable and emit values
-let responseStream$ = requestStream$.pipe(
+const responseStream$ = requestStream$.pipe(
   flatMap(requestUrl => from(jQuery.getJSON(requestUrl)))
 );
 
