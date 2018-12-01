@@ -8,10 +8,10 @@ const button = document.querySelector('button');
 const label = document.querySelector('h4');
 
 // Initialize click stream observable as clickStream$
-let clickStream$ = fromEvent(button, 'click');
+const clickStream$ = fromEvent(button, 'click');
 
 // We can chain clickStream$ with pipe() and use a variety of operations
-let doubleClickStream$ = clickStream$.pipe(
+const doubleClickStream$ = clickStream$.pipe(
   // Here we observe the stream and check to see if there are two clicks which occurred in 250 ms
   buffer(clickStream$.pipe(throttle(val => interval(250)))),
   map(arr => arr.length),
