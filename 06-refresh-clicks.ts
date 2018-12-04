@@ -8,15 +8,15 @@ import * as $ from 'jquery';
 const refreshButton = document.querySelector('.refresh');
 
 // Create a click observable using fromEvent()
-let refreshClickStream$ = fromEvent(refreshButton, 'click');
+const refreshClickStream$ = fromEvent(refreshButton, 'click');
 
 // Create an observable stream of GitHub users using of()
-let startupRequestStream$ = of('https://api.github.com/users');
+const startupRequestStream$ = of('https://api.github.com/users');
 
 // Returns a random GitHhub user from the array
-let requestOnRefreshStream$ = refreshClickStream$.pipe(
+const requestOnRefreshStream$ = refreshClickStream$.pipe(
   map(ev => {
-    let randomOffset = Math.floor(Math.random() * 500);
+    const randomOffset = Math.floor(Math.random() * 500);
     return 'https://api.github.com/users?since=' + randomOffset;
   })
 );
@@ -27,13 +27,13 @@ let requestOnRefreshStream$ = refreshClickStream$.pipe(
 //s-----a---b------c----->
 
 // Merges requestOnRefreshStream$ with startupRequestStream$ and flattens stream into a JSON array
-let responseStream$ = requestOnRefreshStream$.pipe(
+const responseStream$ = requestOnRefreshStream$.pipe(
   merge(startupRequestStream$),
   flatMap(requestUrl => from($.getJSON(requestUrl)))
 );
 
 // Function that receives the responseStream$ and returns an array of GitHub users in random order
-let createSuggestionStream = (responseStream$: any) => {
+const createSuggestionStream = (responseStream$: any) => {
   return responseStream$.pipe(
     map(
       (listUser: any) => listUser[Math.floor(Math.random() * listUser.length)]
@@ -42,12 +42,12 @@ let createSuggestionStream = (responseStream$: any) => {
 };
 
 // Set each randomly generated user from the GitHub array
-let suggestion1Stream$ = createSuggestionStream(responseStream$);
-let suggestion2Stream$ = createSuggestionStream(responseStream$);
-let suggestion3Stream$ = createSuggestionStream(responseStream$);
+const suggestion1Stream$ = createSuggestionStream(responseStream$);
+const suggestion2Stream$ = createSuggestionStream(responseStream$);
+const suggestion3Stream$ = createSuggestionStream(responseStream$);
 
 // Grab username and image from GitHub user array and render in the DOM
-let renderSuggestion = (userData: any, selector: any) => {
+const renderSuggestion = (userData: any, selector: any) => {
   const element = document.querySelector(selector);
   const usernameEl = element.querySelector('.username');
   usernameEl.href = userData.html_url;
