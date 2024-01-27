@@ -1,4 +1,4 @@
-# Into To Reactive Programming
+# Intro To Reactive Programming
 
 ### Clone instructions
 1. Open git in your favorite terminal
